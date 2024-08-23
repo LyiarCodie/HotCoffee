@@ -5,25 +5,10 @@ import "../definitions.js";
 /** @type {HTMLImageElement} */
 const cursorSpr = document.getElementById("cursorSpr");
 
-function CreateCursor()
+/** @param {MouseInput} mouse */
+function CreateCursor(mouse)
 {
     const position = CreateVector2();
-    // const size = CreateDimensions2(16, 16);
-    let click = false;
-    let holding = false;
-
-    const setHolding = (newValue = true) => {
-        if (typeof(newValue) == "boolean") { holding = newValue; }
-        else { DisplayErrorMessage("setHolding", "newValue", newValue); }
-    }
-    
-    const setClick = (newValue = true) => {
-        if (typeof(newValue) == "boolean") { click = newValue; }
-        else { DisplayErrorMessage("setClick", "newValue", newValue); }
-    }
-
-    const getHolding = () => holding;
-    const getClick = () => click;
 
     /** @param {Vector2} newPosition */
     const setPosition = (newPosition) => {
@@ -35,12 +20,16 @@ function CreateCursor()
         else { DisplayErrorMessage("setPosition", "newPosition", newPosition); }
     }
 
+    const update = () => {
+        setPosition(mouse.getPosition())
+    }
+
     /** @param {CanvasRenderingContext2D} ctx */
     const draw = (ctx) => {
         ctx.drawImage(cursorSpr, position.x, position.y);
     }
 
-    return { draw, setPosition, setHolding, setClick, getHolding, getClick }
+    return { draw, update }
 }
 
 export default CreateCursor;

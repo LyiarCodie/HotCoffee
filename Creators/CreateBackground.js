@@ -8,6 +8,7 @@ function CreateBackground(canvas)
 
     /** @param {CanvasRenderingContext2D} ctx */
     const draw = (ctx) => {
+        ctx.fillStyle = "black";
         ctx.fillRect(position.x, position.y, size.width, size.height);
     }
 

@@ -1,6 +1,8 @@
 import CreateBackground from './Creators/CreateBackground.js';
 import CreateCursor from './Creators/CreateCursor';
-import { GetCursorPositionOnCanvas } from './Utils.js';
+import CreatePlayer from './Creators/CreatePlayer.js';
+import CreateMouseInput from './Creators/CreateMouseInput.js';
+import CreateKeyboardInput from './Creators/CreateKeyboardInput.js';
 
 /** @type {HTMLCanvasElement} */
 const gameCanvas = document.getElementById("gameCanvas");
@@ -17,60 +19,53 @@ let animationFrameId = 0;
 
 const instancesManagersArr = [];
 
-const cursor = CreateCursor();
+
+/** @type {KeyboardKey[]} */
+const keysBeingPressed = [];
+const keyboard = CreateKeyboardInput(keysBeingPressed);
+const mouse = CreateMouseInput(gameCanvas);
+
 function preload()
 {
-  gameCanvas.width = 256;
-  gameCanvas.height = 144;
+  gameCanvas.width = 256 * 2;
+  gameCanvas.height = 144 * 2;
   ctx.imageSmoothingEnabled = false;
 
   const backgroundInsts = [];
   const cursorInsts = [];
+  const playerInsts = [];
 
-  instancesManagersArr.push(backgroundInsts);
-  instancesManagersArr.push(cursorInsts);
+  instancesManagersArr.push(backgroundInsts); // first: background is rendered/updated
+  instancesManagersArr.push(playerInsts); // second: player is rendered/updated
+  instancesManagersArr.push(cursorInsts); // third: cursor is rendered/updated
 
   const background = CreateBackground(gameCanvas);
+  const player = CreatePlayer();
+  const cursor = CreateCursor(mouse);
 
   backgroundInsts.push(background);
   cursorInsts.push(cursor);
+  playerInsts.push(player);
 
-  gameCanvas.addEventListener("mousemove", (ev) => {
-    const position = GetCursorPositionOnCanvas(gameCanvas, ev);
-    cursor.setPosition(position);
-  })
 
-  gameCanvas.addEventListener("mousedown", () => {
-    if (!cursor.getHolding())
-    {
-      cursor.setHolding(true);
-      cursor.setClick(true);
-    }
-  })
-
-  gameCanvas.addEventListener("mouseup", () => {
-    if (cursor.getHolding())
-    {
-      cursor.setHolding(false);
-      cursor.setClick(false);
-    }
-  })
+  // CreateMouseInput(gameCanvas, cursor);
 }
 
-let lastTime = 0;
-let fps = 0;
-function update(timestamp)
+function update()
 {
-  if (lastTime != 0)
+  if (instancesManagersArr.length)
   {
-    const deltaTime = (timestamp - lastTime) / 1000;
-
-    fps = 1 / deltaTime;
+    for (const currentInstancesArr of instancesManagersArr)
+    {
+      if (currentInstancesArr.length)
+      {
+        for (const inst of currentInstancesArr)
+        {
+          if ("update" in inst) { inst.update(); }
+        }
+      }
+    }
   }
-
-  lastTime = timestamp;
-
-  console.log("FPS: ", Math.round(fps))
 
   if (instancesManagersArr.length)
   {
@@ -81,13 +76,25 @@ function update(timestamp)
         for (const inst of currentInstancesArr)
         {
           if ("draw" in inst) { inst.draw(ctx); }
-          if ("update" in inst) { inst.update(); }
         }
       }
     }
   }
 
-  cursor.setClick(false);
+  // if (keyboard.KeyDown("A")) console.log("MOOOOVE")
+  mouse.setClickAsFalse();
+  if (keysBeingPressed.length)
+  {
+    for (let i = keysBeingPressed.length - 1; i >= 0; i--)
+    {
+      const currentCallback = keysBeingPressed[i];
+      if (currentCallback)
+      {
+        currentCallback();
+        keysBeingPressed.pop();
+      }
+    }
+  }
 
   currentFrame++;
   animationFrameId = window.requestAnimationFrame(update);

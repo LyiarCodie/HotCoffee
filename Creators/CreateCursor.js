@@ -10,18 +10,9 @@ function CreateCursor(mouse)
 {
     const position = CreateVector2();
 
-    /** @param {Vector2} newPosition */
-    const setPosition = (newPosition) => {
-        if (isValidNumber(newPosition.x) && isValidNumber(newPosition.y))
-        {
-            position.x = newPosition.x;
-            position.y = newPosition.y;
-        }
-        else { DisplayErrorMessage("setPosition", "newPosition", newPosition); }
-    }
-
     const update = () => {
-        setPosition(mouse.getPosition())
+        const mousePosition = mouse.getPosition();
+        Object.assign(position, { x: mousePosition.x, y: mousePosition.y });
     }
 
     /** @param {CanvasRenderingContext2D} ctx */

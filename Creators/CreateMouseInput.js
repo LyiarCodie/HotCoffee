@@ -10,11 +10,6 @@ function CreateMouseInput(canvas)
   let click = false;
   let holding = false;
 
-  const setHolding = (newValue = true) => {
-    if (typeof(newValue) == "boolean") { holding = newValue; }
-    else { DisplayErrorMessage("setHolding", "newValue", newValue); }
-  }
-
   const setClickAsFalse = () => {
       click = false;
   }
@@ -27,7 +22,7 @@ function CreateMouseInput(canvas)
 
   canvas.addEventListener("mousemove", (ev) => {
     const _position = GetCursorPositionOnCanvas(canvas, ev);
-    Object.assign(position, _position);
+    Object.assign(position, { x:_position.x, y: _position.y });
   })
 
   canvas.addEventListener("mousedown", () => {

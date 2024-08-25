@@ -3,12 +3,17 @@ import { DisplayErrorMessage, isValidNumber } from "../Utils";
 import "../definitions.js";
 
 /** 
+ * @param {Vector2} _position
  * @param {Dimensions2} _size 
  * @param {string} color
  * */
-function CreateWall(_size, color)
+function CreateCollider(_position, _size, color)
 {
-    const position = CreateVector2();
+    let position = _position;
+    if (!_position || !isValidNumber(_position.x) || !isValidNumber(_position.y))
+    {
+        position = CreateVector2();
+    }
     const size = CreateDimensions2(_size.width, _size.height);
     const rect = CreateBounds(position, size);
     
@@ -39,13 +44,17 @@ function CreateWall(_size, color)
         rect.setPosition(position);
     }
 
-    /** @param {CanvasRenderingContext2D} ctx */
-    const draw = (ctx) => {
-        ctx.fillStyle = color;
-        ctx.fillRect(position.x, position.y, size.width, size.height);
+    let draw = null;
+    if (color && color.trim() != "")
+    {
+        /** @param {CanvasRenderingContext2D} ctx */
+        draw = (ctx) => {
+            ctx.fillStyle = color;
+            ctx.fillRect(position.x, position.y, size.width, size.height);
+        }
     }
 
     return { draw, update, setPosition, getSize, getBounds }
 }
 
-export default CreateWall;
+export default CreateCollider;

@@ -1,20 +1,20 @@
-import { CreateVector2, CreateDimensions2, CreateBounds, Normalize, isValidNumber, DisplayErrorMessage } from '../Utils.js';
+import { CreateVector2, CreateDimensions2, CreateBounds, Normalize, isValidNumber, DisplayErrorMessage, Clamp } from '../Utils.js';
 import "../definitions.js";
 
 /** 
- * @param {Vector2} position 
+ * @param {HTMLCanvasElement} canvas 
  * @param {KeyboardInput} kb
- * @param {[GameObject[]]} collisions
+ * @param {[GameObjectColliders[]]} collisions
  * */
-function CreatePlayer(kb, ...collisions)
+function CreatePlayer(canvas, kb, ...collisions)
 {
     const position = CreateVector2();
     const velocity = CreateVector2();
-    const size = CreateDimensions2(32, 32);
+    const size = CreateDimensions2(16, 16);
     const rect = CreateBounds(position, size);
 
     const axis = CreateVector2();
-    let moveSpeed = 5;
+    let moveSpeed = 2;
 
     const update = () => {
         rect.setPosition(position);
@@ -41,6 +41,7 @@ function CreatePlayer(kb, ...collisions)
         collide();
 
         setPosition(CreateVector2(position.x + velocity.x, position.y + velocity.y));
+        setPosition(CreateVector2(Clamp(position.x, 0, canvas.width - size.width), Clamp(position.y, 0, canvas.height - size.height)));
     }
 
     const collide = () => {
@@ -53,72 +54,75 @@ function CreatePlayer(kb, ...collisions)
                 {
                     for (const currentGameObject of collisionsGroups)
                     {
-                        const gameObjectRight = currentGameObject.getBounds().right;
-                        const gameObjectLeft = currentGameObject.getBounds().left;
-                        const gameObjectTop = currentGameObject.getBounds().top;
-                        const gameObjectBottom = currentGameObject.getBounds().bottom;
+                        if (currentGameObject.getBounds)
+                        {
+                            const gameObjectRight = currentGameObject.getBounds().right;
+                            const gameObjectLeft = currentGameObject.getBounds().left;
+                            const gameObjectTop = currentGameObject.getBounds().top;
+                            const gameObjectBottom = currentGameObject.getBounds().bottom;
 
-                        // horizontal collision
-                        const touchingRight = axis.x < 0 && rect.isTouchingRight(velocity.x, currentGameObject.getBounds());
-                        const touchingLeft = axis.x > 0 && rect.isTouchingLeft(velocity.x, currentGameObject.getBounds());
-                        if (touchingRight)
-                        {
-                            const gap = Math.abs(rect.bounds.left - gameObjectRight);
-                            for (let i = 0; i < gap; i++)
+                            // horizontal collision
+                            const touchingRight = axis.x < 0 && rect.isTouchingRight(velocity.x, currentGameObject.getBounds());
+                            const touchingLeft = axis.x > 0 && rect.isTouchingLeft(velocity.x, currentGameObject.getBounds());
+                            if (touchingRight)
                             {
-                                setPosition(CreateVector2(position.x - 1, position.y));
-                                if (position.x < gameObjectRight)
+                                const gap = Math.abs(rect.bounds.left - gameObjectRight);
+                                for (let i = 0; i < gap; i++)
                                 {
-                                    setPosition(CreateVector2(gameObjectRight, position.y));
+                                    setPosition(CreateVector2(position.x - 1, position.y));
+                                    if (position.x < gameObjectRight)
+                                    {
+                                        setPosition(CreateVector2(gameObjectRight, position.y));
+                                    }
                                 }
+                                
+                                setVelocity(CreateVector2(0, velocity.y));
                             }
-                            
-                            setVelocity(CreateVector2(0, velocity.y));
-                        }
-                        else if (touchingLeft)
-                        {
-                            const gap = Math.abs(gameObjectLeft - rect.bounds.right);
-                            for (let i = 0; i < gap; i++)
+                            else if (touchingLeft)
                             {
-                                setPosition(CreateVector2(position.x + 1, position.y));
-                                if (position.x + size.width > gameObjectLeft)
+                                const gap = Math.abs(gameObjectLeft - rect.bounds.right);
+                                for (let i = 0; i < gap; i++)
                                 {
-                                    setPosition(CreateVector2(gameObjectLeft-size.width, position.y));
+                                    setPosition(CreateVector2(position.x + 1, position.y));
+                                    if (position.x + size.width > gameObjectLeft)
+                                    {
+                                        setPosition(CreateVector2(gameObjectLeft-size.width, position.y));
+                                    }
                                 }
-                            }
 
-                            setVelocity(CreateVector2(0, velocity.y));
-                        }
-
-                        // vertical collision
-                        const touchingBottom = axis.y < 0 && rect.isTouchingBottom(velocity.y, currentGameObject.getBounds());
-                        const touchingTop = axis.y > 0 && rect.isTouchingTop(velocity.y, currentGameObject.getBounds());
-                        if (touchingTop)
-                        {
-                            const gap = Math.abs(rect.bounds.bottom - gameObjectTop);
-                            for (let i = 0; i < gap; i++)
-                            {
-                                setPosition(CreateVector2(position.x, position.y + 1));
-                                if (position.y + size.height > gameObjectTop)
-                                {
-                                    setPosition(CreateVector2(position.x, gameObjectTop - size.height));
-                                }
-                            }
-                            setVelocity(CreateVector2(velocity.x, 0));
-                        }
-                        else if (touchingBottom)
-                        {
-                            const gap = Math.abs(rect.bounds.top - gameObjectBottom);
-                            for (let i = 0; i < gap; i++)
-                            {
-                                setPosition(CreateVector2(position.x, position.y - 1));
-                                if (position.y < gameObjectBottom)
-                                {
-                                    setPosition(CreateVector2(position.x, gameObjectBottom));
-                                }
+                                setVelocity(CreateVector2(0, velocity.y));
                             }
 
-                            setVelocity(CreateVector2(velocity.x, 0));
+                            // vertical collision
+                            const touchingBottom = axis.y < 0 && rect.isTouchingBottom(velocity.y, currentGameObject.getBounds());
+                            const touchingTop = axis.y > 0 && rect.isTouchingTop(velocity.y, currentGameObject.getBounds());
+                            if (touchingTop)
+                            {
+                                const gap = Math.abs(rect.bounds.bottom - gameObjectTop);
+                                for (let i = 0; i < gap; i++)
+                                {
+                                    setPosition(CreateVector2(position.x, position.y + 1));
+                                    if (position.y + size.height > gameObjectTop)
+                                    {
+                                        setPosition(CreateVector2(position.x, gameObjectTop - size.height));
+                                    }
+                                }
+                                setVelocity(CreateVector2(velocity.x, 0));
+                            }
+                            else if (touchingBottom)
+                            {
+                                const gap = Math.abs(rect.bounds.top - gameObjectBottom);
+                                for (let i = 0; i < gap; i++)
+                                {
+                                    setPosition(CreateVector2(position.x, position.y - 1));
+                                    if (position.y < gameObjectBottom)
+                                    {
+                                        setPosition(CreateVector2(position.x, gameObjectBottom));
+                                    }
+                                }
+
+                                setVelocity(CreateVector2(velocity.x, 0));
+                            }
                         }
                     }
                 }

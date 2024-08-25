@@ -49,6 +49,12 @@
  */
 
 /**
- * @typedef {Object} GameObject
+ * @typedef {Object} GameObjectColliders
  * @prop    {() => Bounds} getBounds
+ */
+
+/**
+ * @typedef {Object} GameObject
+ * @prop {(ctx: CanvasRenderingContext2D) => void} draw
+ * @prop {() => void} update
  */

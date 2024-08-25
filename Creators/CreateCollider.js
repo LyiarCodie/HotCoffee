@@ -5,9 +5,11 @@ import "../definitions.js";
 /** 
  * @param {Vector2} _position
  * @param {Dimensions2} _size 
- * @param {string} color
+ * @param {string} color - to draw this collider it must be pushed into any array instances in `instancesToDrawManager`
+ * @param {string} tag - this could be used as a collide identifier
+ * @param {StaticLevelDecoration} parent - the gameobject that have relation with this collider
  * */
-function CreateCollider(_position, _size, color)
+function CreateCollider(_position, _size, color, tag = "", parent)
 {
     let position = _position;
     if (!_position || !isValidNumber(_position.x) || !isValidNumber(_position.y))
@@ -40,6 +42,10 @@ function CreateCollider(_position, _size, color)
         }
     }
 
+    const getTag = () => tag;
+
+    const getParent = () => parent;
+
     const update = () => {
         rect.setPosition(position);
     }
@@ -54,7 +60,7 @@ function CreateCollider(_position, _size, color)
         }
     }
 
-    return { draw, update, setPosition, getSize, getBounds }
+    return { draw, update, setPosition, getSize, getBounds, getTag, getParent }
 }
 
 export default CreateCollider;

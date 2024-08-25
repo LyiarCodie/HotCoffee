@@ -86,12 +86,20 @@ function preload()
   const coffeeMakerSpr = document.getElementById("coffeeMakerSpr");
   coffeeMakerLayer.push(CreateStaticLevelDecoration(coffeeMakerSpr, CreateVector2(207, 10)));
 
+  /** @type {Collider[]} */
   const nonInteractiveColliders = [];
   nonInteractiveColliders.push(CreateCollider(CreateVector2(123, 0), CreateDimensions2(133, 29)));
   nonInteractiveColliders.push(CreateCollider(CreateVector2(125, 57), CreateDimensions2(128, 19)));
   nonInteractiveColliders.push(CreateCollider(CreateVector2(142,72), CreateDimensions2(97, 9)));
+  nonInteractiveColliders.push(CreateCollider(CreateVector2(156, 9), CreateDimensions2(72, 30)))
 
-  const player = CreatePlayer(gameCanvas, keyboard, nonInteractiveColliders);
+  /** @type {Collider[]} */
+  const interactiveColliders = [];
+  interactiveColliders.push(CreateCollider(CreateVector2(147, 29), CreateDimensions2(34,23), "", "fridgeInventoryTrigger", fridgeLayer[0]))
+  interactiveColliders.push(CreateCollider(CreateVector2(185, 29), CreateDimensions2(18, 23), "", "toasterTrigger", toasterLayer[0]));
+  interactiveColliders.push(CreateCollider(CreateVector2(204, 29), CreateDimensions2(18, 23), "", "coffeeMakerTrigger", coffeeMakerLayer[0]));
+
+  const player = CreatePlayer(gameCanvas, keyboard, nonInteractiveColliders, interactiveColliders);
   const center = CreateVector2(gameCanvas.width / 2 - player.getSize().width + 100, gameCanvas.height / 2 - player.getSize().height / 2)
   player.setPosition(center);
   
@@ -128,7 +136,7 @@ const currentFPSCounter = CreateCurrentFPSCounter();
 
 function update()
 {
-  currentFPSCounter.update();
+  // currentFPSCounter.update();
 
   if (instancesToDrawManager.length)
   {

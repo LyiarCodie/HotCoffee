@@ -54,6 +54,17 @@ export function CreateBounds(position, size)
     }
 
     /** 
+     * @param {bounds} other
+     * @description returns **true** if this object bounds is over the `other` object bounds
+     * */
+    const isOver = (other) => {
+        return bounds.top < other.bottom &&
+               bounds.right > other.left &&
+               bounds.bottom > other.top &&
+               bounds.left < other.right;
+    }
+
+    /** 
      * @param {number} velocityX
      * @param {Bounds} other
      * @description returns **true** if this object bounds is touching the left side of `other` object bounds
@@ -91,7 +102,7 @@ export function CreateBounds(position, size)
 
     /** 
      * @param {number} velocityY
-     * @param {Bounds} other
+     * @param {bounds} other
      * @description returns **true** if this object bounds is touching the bottom side of `other` object bounds
      * */
     const isTouchingBottom = (velocityY, other) => {
@@ -101,7 +112,7 @@ export function CreateBounds(position, size)
                bounds.left < other.right;
     }
 
-    return { bounds, setPosition, isTouchingLeft, isTouchingRight, isTouchingTop, isTouchingBottom }
+    return { bounds, setPosition, isTouchingLeft, isTouchingRight, isTouchingTop, isTouchingBottom, isOver }
 }
 
 /** @param {Vector2} vector2 */
@@ -175,4 +186,75 @@ export function Clamp(value, min, max)
     else if (value < min) return min;
     
     return value;
+}
+
+/**
+ * @param {HTMLImageElement} image 
+ * @param {Vector2} position 
+ * @param {Dimensions2} clipSize
+ */
+export function DrawHighlightBorder(image, position, clipSize)
+{
+    // console.log("soluçao ksksk")
+    let draw = null;
+    if (!clipSize || !isValidNumber(clipSize.width) || !isValidNumber(clipSize.height))
+    {
+        /** @param {CanvasRenderingContext2D} ctx */
+        draw = (ctx) => {
+            ctx.shadowColor = "white";
+            ctx.shadowOffsetX = 1;
+            ctx.shadowOffsetY = 0;
+            ctx.drawImage(image, position.x, position.y);
+
+            ctx.shadowColor = "white";
+            ctx.shadowOffsetX = -1;
+            ctx.shadowOffsetY = 0;
+            ctx.drawImage(image, position.x, position.y);
+
+            ctx.shadowColor = "white";
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 1;
+            ctx.drawImage(image, position.x, position.y);
+
+            ctx.shadowColor = "white";
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = -1;
+            ctx.drawImage(image, position.x, position.y);
+
+            ctx.shadowColor = "";
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
+        }
+    }
+    else
+    {
+        /** @param {CanvasRenderingContext2D} ctx */
+        draw = (ctx) => {
+            ctx.shadowColor = "white";
+            ctx.shadowOffsetX = 1;
+            ctx.shadowOffsetY = 0;
+            ctx.drawImage(image, 0, 0, clipSize.width, clipSize.height, position.x, position.y, clipSize.width, clipSize.height);
+            
+            ctx.shadowColor = "white";
+            ctx.shadowOffsetX = -1;
+            ctx.shadowOffsetY = 0;
+            ctx.drawImage(image, 0, 0, clipSize.width, clipSize.height, position.x, position.y, clipSize.width, clipSize.height);
+
+            ctx.shadowColor = "white";
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 1;
+            ctx.drawImage(image, 0, 0, clipSize.width, clipSize.height, position.x, position.y, clipSize.width, clipSize.height);
+            
+            ctx.shadowColor = "white";
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = -1;
+            ctx.drawImage(image, 0, 0, clipSize.width, clipSize.height, position.x, position.y, clipSize.width, clipSize.height);
+
+            ctx.shadowColor = "";
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
+        }
+    }
+
+    return { draw }
 }

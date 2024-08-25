@@ -19,6 +19,10 @@ function CreateKeyboardInput(keysBeingPressedArr)
         S: {
             holding: false,
             pressed: false
+        },
+        J: {
+            holding: false,
+            pressed: false
         }
     }
 

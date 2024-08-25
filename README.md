@@ -25,3 +25,4 @@ just open this URL in your browser.
 Click in **Start** to begin rendering the game and **Stop** to... well, stop.
 
 Use **W**, **A**, **S** and/or **D** to move.
+Use **J** to interact with some objects
